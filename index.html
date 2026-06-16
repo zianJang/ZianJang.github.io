@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zian Jang · Academic Homepage</title>
+<style>
+  /* ============================================================
+     여기만 고치면 거의 다 됩니다 — 색상 / 폰트 토큰
+     ============================================================ */
+  :root{
+    --bg:        #fdfdfd;
+    --surface:   #ffffff;
+    --text:      #1f2329;
+    --muted:     #6a7178;
+    --line:      #e7e9ec;
+    --accent:    #6b46c1;   /* al-folio 시그니처 보라 계열 */
+    --accent-sub:#efe9fb;
+    --shadow:    0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04);
+    --radius:    14px;
+    --maxw:      980px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15171a; --surface:#1d2024; --text:#e8eaed; --muted:#9aa0a6;
+      --line:#2c3036; --accent:#b794f4; --accent-sub:#2a2440;
+      --shadow:0 1px 3px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Source Sans 3","Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ---------- Nav ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:saturate(180%) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:var(--maxw); margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand{font-weight:700; font-size:1.05rem; letter-spacing:.3px; color:var(--text);}
+  .brand:hover{text-decoration:none;}
+  .nav-links{display:flex; gap:6px;}
+  .nav-links button{
+    font:inherit; font-size:.95rem; color:var(--muted);
+    background:none; border:none; cursor:pointer;
+    padding:7px 14px; border-radius:999px; transition:.18s;
+  }
+  .nav-links button:hover{color:var(--text); background:var(--accent-sub);}
+  .nav-links button.active{color:var(--accent); background:var(--accent-sub); font-weight:600;}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:48px 24px 96px;}
+  .page{display:none; animation:fade .35s ease;}
+  .page.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  h1.page-title{
+    font-size:2rem; margin:0 0 4px; letter-spacing:-.5px;
+  }
+  .page-sub{color:var(--muted); margin:0 0 36px; font-size:1.05rem;}
+  .hr{height:1px; background:var(--line); border:0; margin:40px 0;}
+
+  /* ---------- About ---------- */
+  .about-grid{display:grid; grid-template-columns:240px 1fr; gap:44px; align-items:start;}
+  .profile-card{position:sticky; top:90px;}
+  .avatar{
+    width:240px; height:auto; border-radius:18px; display:block;
+    box-shadow:var(--shadow);
+  }
+  /* 사진이 없을 때 쓰는 이니셜용 박스 */
+  .avatar-fallback{
+    width:240px; height:240px; border-radius:18px;
+    background:linear-gradient(135deg,var(--accent-sub),var(--accent));
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:3.5rem; font-weight:700; box-shadow:var(--shadow);
+  }
+  img.avatar{object-fit:cover;}
+  .profile-meta{margin-top:18px; font-size:.95rem; line-height:1.9;}
+  .profile-meta .role{color:var(--muted);}
+  .socials{display:flex; gap:14px; margin-top:14px; font-size:1.05rem;}
+  .name-block h2{font-size:1.9rem; margin:0 0 2px; letter-spacing:-.5px;}
+  .name-block .tagline{color:var(--muted); font-size:1.1rem; margin:0 0 24px;}
+  .about-body p{margin:0 0 18px;}
+
+  .news{margin-top:8px;}
+  .news h3, .section-h{
+    font-size:.82rem; text-transform:uppercase; letter-spacing:1.5px;
+    color:var(--accent); margin:0 0 16px; font-weight:700;
+  }
+  .news-item{display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--line); font-size:.96rem;}
+  .news-item:last-child{border-bottom:none;}
+  .news-date{flex:0 0 96px; color:var(--muted); font-variant-numeric:tabular-nums;}
+
+  /* ---------- Publications ---------- */
+  .pub-controls{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px;}
+  .pub-controls button{
+    font:inherit; font-size:.88rem; padding:6px 14px; border-radius:999px;
+    border:1px solid var(--line); background:var(--surface); color:var(--muted); cursor:pointer; transition:.18s;
+  }
+  .pub-controls button.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .year-head{
+    font-size:1.4rem; font-weight:700; color:var(--text);
+    margin:34px 0 14px; padding-bottom:6px; border-bottom:2px solid var(--accent-sub);
+  }
+  .pub{
+    display:grid; grid-template-columns:64px 1fr; gap:18px;
+    padding:18px 0; border-bottom:1px solid var(--line);
+  }
+  .pub-badge{
+    width:64px; height:46px; border-radius:8px; background:var(--accent-sub);
+    color:var(--accent); font-size:.64rem; font-weight:700; letter-spacing:.5px;
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:4px;
+  }
+  .pub-title{font-weight:600; margin:0 0 3px; line-height:1.4;}
+  .pub-authors{font-size:.93rem; color:var(--muted); margin:0 0 4px;}
+  .pub-authors .me{color:var(--text); font-weight:700; border-bottom:2px solid var(--accent-sub);}
+  .pub-venue{font-size:.9rem; color:var(--text); font-style:italic;}
+  .pub-venue .tag{
+    font-style:normal; font-size:.72rem; font-weight:700; letter-spacing:.5px;
+    background:var(--accent); color:#fff; padding:1px 7px; border-radius:5px; margin-left:8px;
+  }
+  .pub-links{margin-top:7px; display:flex; gap:7px; flex-wrap:wrap;}
+  .pub-links a{
+    font-size:.78rem; padding:3px 10px; border:1px solid var(--accent);
+    border-radius:6px; color:var(--accent);
+  }
+  .pub-links a:hover{background:var(--accent); color:#fff; text-decoration:none;}
+
+  /* ---------- CV ---------- */
+  .cv-top{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; margin-bottom:8px;}
+  .cv-download{
+    font-size:.9rem; padding:9px 20px; border-radius:999px;
+    background:var(--accent); color:#fff; font-weight:600; box-shadow:var(--shadow);
+  }
+  .cv-download:hover{text-decoration:none; opacity:.92;}
+  .cv-block{margin:0 0 38px;}
+  .cv-entry{
+    display:grid; grid-template-columns:150px 1fr; gap:20px;
+    padding:16px 0; border-bottom:1px solid var(--line);
+  }
+  .cv-entry:last-child{border-bottom:none;}
+  .cv-when{color:var(--muted); font-size:.92rem; font-variant-numeric:tabular-nums;}
+  .cv-what h4{margin:0 0 2px; font-size:1.05rem;}
+  .cv-what .where{color:var(--accent); font-size:.95rem; margin:0 0 6px;}
+  .cv-what p{margin:0; font-size:.95rem; color:var(--muted);}
+  .skill-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;}
+  .skill{font-size:.85rem; background:var(--accent-sub); color:var(--accent); padding:4px 12px; border-radius:999px; font-weight:600;}
+
+  footer{
+    max-width:var(--maxw); margin:0 auto; padding:28px 24px 48px;
+    color:var(--muted); font-size:.85rem; text-align:center; border-top:1px solid var(--line);
+  }
+
+  @media (max-width:720px){
+    body{font-size:16px;}
+    .about-grid{grid-template-columns:1fr; gap:28px;}
+    .profile-card{position:static;}
+    .avatar{width:180px; margin:0 auto;}
+    .avatar-fallback{width:160px; height:160px; margin:0 auto;}
+    .profile-meta{text-align:center;}
+    .socials{justify-content:center;}
+    .cv-entry,.pub{grid-template-columns:1fr; gap:6px;}
+    .pub-badge{display:none;}
+    .nav-inner{padding:12px 16px;}
+    main{padding:32px 18px 72px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#" class="brand" data-go="about">Zian Jang</a>
+    <nav class="nav-links">
+      <button data-go="about" class="active">about</button>
+      <button data-go="publications">publications</button>
+      <button data-go="cv">cv</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===================== ABOUT ===================== -->
+  <section id="about" class="page active">
+    <div class="about-grid">
+      <aside class="profile-card">
+        <img class="avatar" src="profile.jpg" alt="Zian Jang">
+        <div class="profile-meta">
+          <div class="role">Integrated M.S./Ph.D. Student</div>
+          <div>Department of Artificial Intelligence</div>
+          <div>Korea University</div>
+          <div style="margin-top:8px;"><a href="mailto:jangzian@korea.ac.kr">jangzian@korea.ac.kr</a></div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="name-block">
+          <h2>Zian Jang</h2>
+          <p class="tagline">Combinatorial Optimization &amp; Reinforcement Learning</p>
+        </div>
+
+        <div class="about-body">
+          <p>I am an Integrated M.S./Ph.D. student in the Department of Artificial Intelligence at Korea University. My research lies at the intersection of combinatorial optimization and reinforcement learning, where I develop learning-based methods to tackle complex, large-scale decision-making problems.</p>
+          <p>I am particularly interested in neural combinatorial optimization — using deep generative and reinforcement learning models to produce high-quality, feasible solutions to NP-hard problems. I am always open to discussion and collaboration; feel free to reach out by email.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PUBLICATIONS ===================== -->
+  <section id="publications" class="page">
+    <h1 class="page-title">Publications</h1>
+    <p class="page-sub">Selected publications and preprints.</p>
+
+    <div class="pub-controls">
+      <button class="active" data-filter="all">All</button>
+      <button data-filter="conference">Conference</button>
+      <button data-filter="journal">Journal</button>
+      <button data-filter="preprint">Preprint</button>
+    </div>
+
+    <div id="pub-list"></div>
+  </section>
+
+  <!-- ===================== CV ===================== -->
+  <section id="cv" class="page">
+    <div class="cv-top">
+      <div>
+        <h1 class="page-title">Curriculum Vitae</h1>
+        <p class="page-sub">Last updated: June 2026</p>
+      </div>
+      <a href="cv.pdf" class="cv-download">PDF 다운로드 ↓</a>
+    </div>
+
+    <div class="cv-block">
+      <h3 class="section-h">Education</h3>
+      <div class="cv-entry">
+        <div class="cv-when">2022.03 – Present</div>
+        <div class="cv-what">
+          <h4>Integrated M.S./Ph.D. in Artificial Intelligence</h4>
+          <div class="where">Korea University</div>
+          <p>Department of Artificial Intelligence.</p>
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-when">2018.03 – 2022.02</div>
+        <div class="cv-what">
+          <h4>B.S. in Information Security and Cryptography</h4>
+          <div class="where">Kookmin University</div>
+          <p>Department of Information Security and Cryptography.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cv-block">
+      <h3 class="section-h">Research Experience</h3>
+      <div class="cv-entry">
+        <div class="cv-when">2025.11 – Present</div>
+        <div class="cv-what">
+          <h4>Optimizing Container Ship Stowage Plans via Reinforcement Learning</h4>
+          <div class="where">Project with Sinokor Merchant Marine</div>
+          <p>Development of a method for optimizing container ship stowage plans using reinforcement learning techniques.</p>
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-when">2025.03 – Present</div>
+        <div class="cv-what">
+          <h4>AI-based Input Signal Quality Improvement for Fatigue Monitoring</h4>
+          <div class="where">Project with KHNP, in collaboration with UNIST</div>
+          <p>Development of an AI-based input signal quality improvement methodology to improve the accuracy of evaluation of a nuclear power plant fatigue monitoring system.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cv-block">
+      <h3 class="section-h">Teaching</h3>
+      <div class="cv-entry">
+        <div class="cv-when">2024 Fall</div>
+        <div class="cv-what"><h4>Teaching Assistant — Discrete Mathematics</h4><div class="where">Korea University</div></div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-when">2024 Spring</div>
+        <div class="cv-what"><h4>Teaching Assistant — Discrete Mathematics</h4><div class="where">Korea University</div></div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-when">2023 Fall</div>
+        <div class="cv-what"><h4>Teaching Assistant — Discrete Mathematics</h4><div class="where">Korea University</div></div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-when">2023 Spring</div>
+        <div class="cv-what"><h4>Teaching Assistant — Discrete Mathematics</h4><div class="where">Korea University</div></div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-when">2022 Spring</div>
+        <div class="cv-what"><h4>Teaching Assistant — Linear Algebra</h4><div class="where">Korea University</div></div>
+      </div>
+    </div>
+
+    <div class="cv-block">
+      <h3 class="section-h">Skills</h3>
+      <div class="cv-entry">
+        <div class="cv-when">Technical</div>
+        <div class="cv-what">
+          <div class="skill-row">
+            <span class="skill">Python</span><span class="skill">PyTorch</span>
+            <span class="skill">LaTeX</span><span class="skill">Git</span>
+          </div>
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-when">Languages</div>
+        <div class="cv-what">
+          <div class="skill-row">
+            <span class="skill">Korean (Native)</span><span class="skill">English (Intermediate)</span><span class="skill">Japanese (Beginner–Intermediate)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 Zian Jang · Built with a layout inspired by
+  <a href="https://github.com/alshedivat/al-folio">al-folio</a>.
+</footer>
+
+<script>
+  /* ---------- 페이지 라우팅 ---------- */
+  const pages = document.querySelectorAll('.page');
+  const navBtns = document.querySelectorAll('.nav-links button');
+  function go(id){
+    pages.forEach(p=>p.classList.toggle('active', p.id===id));
+    navBtns.forEach(b=>b.classList.toggle('active', b.dataset.go===id));
+    window.scrollTo({top:0});
+    if(history.replaceState) history.replaceState(null,'','#'+id);
+  }
+  document.querySelectorAll('[data-go]').forEach(el=>{
+    el.addEventListener('click', e=>{ e.preventDefault(); go(el.dataset.go); });
+  });
+  // 해시로 직접 진입 시
+  const start = location.hash.replace('#','');
+  if(['about','publications','cv'].includes(start)) go(start);
+
+  /* ---------- Publications 데이터 ----------
+     여기 배열만 수정하면 목록이 자동으로 연도별 정렬·필터링됩니다.
+     type: conference | journal | preprint
+  ----------------------------------------------- */
+  const publications = [
+    {
+      year: 2024, type: "preprint",
+      title: "Unsupervised Training of Diffusion Models for Feasible Solution Generation in Neural Combinatorial Optimization",
+      authors: ["Seong-Hyun Hong", "Hyun-Sung Kim", "Zian Jang", "Deunsol Yoon", "Hyungseok Song", "Byung-Jun Lee"],
+      venue: "arXiv preprint",
+      links: [["arXiv","https://arxiv.org/abs/2411.00003"]]
+    }
+  ];
+
+  const myName = "Zian Jang"; // 본인 이름 강조용
+  let activeFilter = "all";
+  const list = document.getElementById('pub-list');
+
+  function renderPubs(){
+    const items = publications
+      .filter(p => activeFilter==="all" || p.type===activeFilter)
+      .sort((a,b)=> b.year - a.year);
+
+    if(items.length===0){ list.innerHTML = '<p style="color:var(--muted)">해당 항목이 없습니다.</p>'; return; }
+
+    let html = "", curYear = null;
+    for(const p of items){
+      if(p.year !== curYear){ curYear = p.year; html += `<div class="year-head">${p.year}</div>`; }
+      const authors = p.authors.map(a =>
+        a===myName ? `<span class="me">${a}</span>` : a).join(", ");
+      const badge = (p.type==="preprint") ? "ARXIV" : p.type.slice(0,4).toUpperCase();
+      const tag = p.tag ? `<span class="tag">${p.tag}</span>` : "";
+      const links = (p.links||[]).map(([t,u])=>`<a href="${u}">${t}</a>`).join("");
+      html += `
+        <div class="pub">
+          <div class="pub-badge">${badge}</div>
+          <div>
+            <p class="pub-title">${p.title}</p>
+            <p class="pub-authors">${authors}</p>
+            <span class="pub-venue">${p.venue}${tag}</span>
+            <div class="pub-links">${links}</div>
+          </div>
+        </div>`;
+    }
+    list.innerHTML = html;
+  }
+  document.querySelectorAll('.pub-controls button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.pub-controls button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      activeFilter = b.dataset.filter;
+      renderPubs();
+    });
+  });
+  renderPubs();
+</script>
+</body>
+</html>
